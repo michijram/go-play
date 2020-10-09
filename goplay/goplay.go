@@ -66,7 +66,7 @@ import (
 	"go/parser"
 	"go/printer"
 	"go/token"
-    "code.google.com/p/go.net/websocket"
+	"golang.org/x/net/websocket"
 )
 
 type fmtResponse struct {
