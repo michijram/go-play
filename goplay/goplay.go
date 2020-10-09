@@ -597,6 +597,9 @@ func main() {
 
 	flag.Parse()
 
+	editTemplate := template.Must(template.ParseFiles(path.Join(exPath, "goplay.html")))
+
+
 	// source of unique numbers
 	go func() {
 		for i := 0; ; i++ {
@@ -609,7 +612,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.HandleFunc("/", edit(resourceDir))
+	http.HandleFunc("/", edit(resourceDir, editTemplate))
 	http.HandleFunc("/compile",   CompileHandler)
 	http.HandleFunc("/fmt",       FmtHandler)
 	http.HandleFunc("/save",      SaveHandler)
@@ -634,8 +637,6 @@ func main() {
 	fmt.Println("hello, world")
 }
 `
-var editTemplate = template.Must(template.ParseFiles("goplay.html"))
-
 type Snippet struct {
 	Body []byte
 }
@@ -649,7 +650,7 @@ type editData struct {
 // If a filename is supplied in the path component of the URI,
 // its contents will be put in the interface's text area.
 // Otherwise, the default "hello, world" program is displayed.
-func edit(resourceDir string) func (w http.ResponseWriter, req *http.Request) {
+func edit(resourceDir string, editTemplate *template.Template) func (w http.ResponseWriter, req *http.Request) {
 	return func (w http.ResponseWriter, req *http.Request) {
 		data, err := ioutil.ReadFile(req.URL.Path[1:])
 		if err != nil {
