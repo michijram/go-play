@@ -236,11 +236,9 @@ func run(dir string, env []string, args []string) ([]byte, []byte, error) {
 	cmd.Stderr = &stderr
 	if env != nil && len(env) != 0 {
 		cmd.Env = env
+	} else {
+		cmd.Env = os.Environ()
 	}
-	s := fmt.Sprintf("GOPATH=%s", os.Getenv("GOPATH"))
-	cmd.Env = append(cmd.Env, s)
-	s = fmt.Sprintf("GOROOT=%s", os.Getenv("GOROOT"))
-	cmd.Env = append(cmd.Env, s)
 	// fmt.Println("++++ env is", cmd.Env)
 	// fmt.Println(cmd)
 	err := cmd.Run()
