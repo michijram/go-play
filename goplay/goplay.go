@@ -48,6 +48,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -584,13 +585,16 @@ var (
 	httpListen = flag.String("http", "127.0.0.1:3998",
 		"host:port to listen on")
 	htmlOutput = flag.Bool("html", false, "render program output as HTML")
-	resourceDir = "../static"
-	resourceDirP = &resourceDir
-	// resourceDir = flag.String("resource-root", "../static",
-	// 	"Location of CSS and JavaScript resources")
 )
 
 func main() {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	resourceDir := path.Join(exPath, "../static")
+
 	flag.Parse()
 
 	// source of unique numbers
@@ -606,7 +610,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.HandleFunc("/", edit)
+	http.HandleFunc("/", edit(resourceDir))
 	http.HandleFunc("/compile",   CompileHandler)
 	http.HandleFunc("/fmt",       FmtHandler)
 	http.HandleFunc("/save",      SaveHandler)
@@ -615,7 +619,7 @@ func main() {
 	http.Handle("/wscompile", websocket.Handler(WSCompileRunHandler))
 
 	http.Handle("/static/", http.StripPrefix("/static/",
-		http.FileServer(http.Dir("../static"))))
+		http.FileServer(http.Dir(resourceDir))))
 	fmt.Printf("Runnning Go Play. Attempting to listening on %s\n",
 		*httpListen)
 	log.Fatal(http.ListenAndServe(*httpListen, nil))
@@ -646,14 +650,16 @@ type editData struct {
 // If a filename is supplied in the path component of the URI,
 // its contents will be put in the interface's text area.
 // Otherwise, the default "hello, world" program is displayed.
-func edit(w http.ResponseWriter, req *http.Request) {
-	data, err := ioutil.ReadFile(req.URL.Path[1:])
-	if err != nil {
-		data = []byte(hello)
-	}
+func edit(resourceDir string) func (w http.ResponseWriter, req *http.Request) {
+	return func (w http.ResponseWriter, req *http.Request) {
+		data, err := ioutil.ReadFile(req.URL.Path[1:])
+		if err != nil {
+			data = []byte(hello)
+		}
 
-	snip := &Snippet{Body: data}
-	editTemplate.Execute(w, &editData{snip, *resourceDirP})
+		snip := &Snippet{Body: data}
+		editTemplate.Execute(w, &editData{snip, resourceDir})
+	}
 }
 
 var (
