@@ -605,7 +605,6 @@ func main() {
 	}()
 
 	// find real temporary directory (for rewriting filename in output)
-	var err error
 	tmpdir, err = filepath.EvalSymlinks(os.TempDir())
 	if err != nil {
 		log.Fatal(err)
