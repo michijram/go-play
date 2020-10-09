@@ -612,7 +612,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	http.HandleFunc("/", edit(resourceDir, editTemplate))
+	http.HandleFunc("/", edit(editTemplate))
 	http.HandleFunc("/compile",   CompileHandler)
 	http.HandleFunc("/fmt",       FmtHandler)
 	http.HandleFunc("/save",      SaveHandler)
