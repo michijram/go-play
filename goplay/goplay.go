@@ -650,7 +650,7 @@ type editData struct {
 // If a filename is supplied in the path component of the URI,
 // its contents will be put in the interface's text area.
 // Otherwise, the default "hello, world" program is displayed.
-func edit(resourceDir string, editTemplate *template.Template) func (w http.ResponseWriter, req *http.Request) {
+func edit(editTemplate *template.Template) func (w http.ResponseWriter, req *http.Request) {
 	return func (w http.ResponseWriter, req *http.Request) {
 		data, err := ioutil.ReadFile(req.URL.Path[1:])
 		if err != nil {
@@ -658,7 +658,7 @@ func edit(resourceDir string, editTemplate *template.Template) func (w http.Resp
 		}
 
 		snip := &Snippet{Body: data}
-		editTemplate.Execute(w, &editData{snip, resourceDir})
+		editTemplate.Execute(w, &editData{snip, "/static"})
 	}
 }
 
