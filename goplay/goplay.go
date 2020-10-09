@@ -498,13 +498,9 @@ func (p *Process) cmd(dir string, env []string, args ...string) *exec.Cmd {
 		cmd.Env = env
 	} else if Environ != nil {
 		cmd.Env = Environ()
+	} else {
+		cmd.Env = os.Environ()
 	}
-
-	// FIXME: we should merge what is in ENV
-	s := fmt.Sprintf("GOPATH=%s", os.Getenv("GOPATH"))
-	cmd.Env = append(cmd.Env, s)
-	s = fmt.Sprintf("GOROOT=%s", os.Getenv("GOROOT"))
-	cmd.Env = append(cmd.Env, s)
 
     cmd.Stdout = &messageWriter{p.id, "stdout", p.out}
     cmd.Stderr = &messageWriter{p.id, "stderr", p.out}
